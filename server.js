@@ -9,8 +9,10 @@ const app = express();
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/mern", {
   useNewUrlParser: true,
-  useUnifiedTopology: true 
+  useUnifiedTopology: true,
 });
+
+const db = require("./models");
 
 const connection = mongoose.connection;
 connection.on("connected", () => {
@@ -28,6 +30,21 @@ app.get("/api/config", (req, res) => {
     success: true,
     currentPort: PORT,
   });
+});
+
+app.get("/api/user", (req, res) => {
+  db.User.find()
+    .then((users) => {
+      res.json(users);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500);
+      res.json({
+        error: true,
+        message: "No users found",
+      });
+    });
 });
 
 app.use(express.static("client/build"));
